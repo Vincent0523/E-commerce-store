@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopHub Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1 class="admin-title">ShopHub Admin Panel</h1>
+        </header>
+
+        <nav class="admin-nav">
+            <button class="nav-btn active" onclick="showSection('dashboard')">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </button>
+            <button class="nav-btn" onclick="showSection('add-product')">
+                <i class="fas fa-plus"></i> Add Product
+            </button>
+            <button class="nav-btn" onclick="showSection('manage-products')">
+                <i class="fas fa-boxes"></i> Manage Products
+            </button>
+            <button class="nav-btn" onclick="showSection('categories')">
+                <i class="fas fa-tags"></i> Categories
+            </button>
+        </nav>
+
+        <div class="admin-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section active">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalProducts">0</div>
+                        <div class="stat-label">Total Products</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCategories">5</div>
+                        <div class="stat-label">Categories</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgPrice">$0</div>
+                        <div class="stat-label">Average Price</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="mostExpensive">$0</div>
+                        <div class="stat-label">Highest Price</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Product Section -->
+            <div id="add-product" class="section">
+                <h2>Add New Product</h2>
+                <div id="addProductAlert"></div>
+                <form id="addProductForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="productName">Product Name</label>
+                            <input type="text" id="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productBrand">Brand</label>
+                            <input type="text" id="productBrand" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productPrice">Price ($)</label>
+                            <input type="number" id="productPrice" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productEmoji">Emoji</label>
+                            <input type="text" id="productEmoji" maxlength="2" placeholder="📱" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productCategory">Category</label>
+                            <select id="productCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="electronics-phones">Electronics - Phones</option>
+                                <option value="electronics-laptops">Electronics - Laptops</option>
+                                <option value="electronics-others">Electronics - Others</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="accessories">Accessories</option>
+                                <option value="home">Home & Living</option>
+                                <option value="sports">Sports & Fitness</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="productSpecs">Specifications</label>
+                            <textarea id="productSpecs" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                </form>
+            </div>
+
+            <!-- Manage Products Section -->
+            <div id="manage-products" class="section">
+                <h2>Manage Products</h2>
+                <input type="text" class="search-bar" id="productSearch" placeholder="Search products..." onkeyup="filterProducts()">
+                
+                <div class="category-filter">
+                    <button class="filter-btn active" onclick="filterByCategory('all')">All</button>
+                    <button class="filter-btn" onclick="filterByCategory('electronics')">Electronics</button>
+                    <button class="filter-btn" onclick="filterByCategory('fashion')">Fashion</button>
+                    <button class="filter-btn" onclick="filterByCategory('accessories')">Accessories</button>
+                    <button class="filter-btn" onclick="filterByCategory('home')">Home</button>
+                    <button class="filter-btn" onclick="filterByCategory('sports')">Sports</button>
+                </div>
+
+                <div id="manageProductAlert"></div>
+                <table class="products-table" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product</th>
+                            <th>Name</th>
+                            <th>Brand</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Categories Section -->
+            <div id="categories" class="section">
+                <h2>Category Management</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="electronicsCount">0</div>
+                        <div class="stat-label">Electronics</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="fashionCount">0</div>
+                        <div class="stat-label">Fashion</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="accessoriesCount">0</div>
+                        <div class="stat-label">Accessories</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="homeCount">0</div>
+                        <div class="stat-label">Home & Living</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="sportsCount">0</div>
+                        <div class="stat-label">Sports & Fitness</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Product Modal -->
+        <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; max-height: 90%; overflow-y: auto;">
+                <h3>Edit Product</h3>
+                <div id="editProductAlert"></div>
+                <form id="editProductForm">
+                    <input type="hidden" id="editProductId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="editProductName">Product Name</label>
+                            <input type="text" id="editProductName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductBrand">Brand</label>
+                            <input type="text" id="editProductBrand" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductPrice">Price ($)</label>
+                            <input type="number" id="editProductPrice" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductEmoji">Emoji</label>
+                            <input type="text" id="editProductEmoji" maxlength="2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductCategory">Category</label>
+                            <select id="editProductCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="electronics-phones">Electronics - Phones</option>
+                                <option value="electronics-laptops">Electronics - Laptops</option>
+                                <option value="electronics-others">Electronics - Others</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="accessories">Accessories</option>
+                                <option value="home">Home & Living</option>
+                                <option value="sports">Sports & Fitness</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductSpecs">Specifications</label>
+                            <textarea id="editProductSpecs" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button type="button" class="btn" style="background: #6c757d;" onclick="closeEditModal()">Cancel</button>
+                        <button type="submit" class="btn">Update Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize products data (same as user page)
+        let products = {
+            electronics: {
+                phones: [
+                    { id: 1, name: "iPhone 15 Pro", brand: "Apple", price: 1199, emoji: "📱", specs: "A17 Pro chip, 128GB, Pro Camera" },
+                    { id: 2, name: "iPhone 14", brand: "Apple", price: 799, emoji: "📱", specs: "A15 Bionic, 128GB, Dual Camera" },
+                    { id: 3, name: "Galaxy S24 Ultra", brand: "Samsung", price: 1299, emoji: "📱", specs: "Snapdragon 8 Gen 3, 256GB, S Pen" },
+                    { id: 4, name: "Galaxy S23", brand: "Samsung", price: 699, emoji: "📱", specs: "Snapdragon 8 Gen 2, 128GB" },
+                    { id: 5, name: "Pixel 8 Pro", brand: "Google", price: 999, emoji: "📱", specs: "Tensor G3, 128GB, AI Camera" },
+                    { id: 6, name: "OnePlus 12", brand: "OnePlus", price: 799, emoji: "📱", specs: "Snapdragon 8 Gen 3, 256GB" }
+                ],
+                laptops: [
+                    { id: 7, name: "MacBook Pro 16\"", brand: "Apple", price: 2499, emoji: "💻", specs: "M3 Pro, 18GB RAM, 512GB SSD" },
+                    { id: 8, name: "MacBook Air 13\"", brand: "Apple", price: 1099, emoji: "💻", specs: "M2, 8GB RAM, 256GB SSD" },
+                    { id: 9, name: "XPS 13", brand: "Dell", price: 1299, emoji: "💻", specs: "Intel i7, 16GB RAM, 512GB SSD" },
+                    { id: 10, name: "ThinkPad X1 Carbon", brand: "Lenovo", price: 1599, emoji: "💻", specs: "Intel i7, 16GB RAM, 1TB SSD" }
+                ],
+                others: [
+                    { id: 11, name: "AirPods Pro", brand: "Apple", price: 249, emoji: "🎧", specs: "Active Noise Cancellation" },
+                    { id: 12, name: "iPad Pro 12.9\"", brand: "Apple", price: 1099, emoji: "📱", specs: "M2 chip, 128GB" },
+                    { id: 13, name: "Gaming Console", brand: "Sony", price: 499, emoji: "🎮", specs: "PlayStation 5" },
+                    { id: 14, name: "4K Monitor", brand: "LG", price: 449, emoji: "🖥️", specs: "27\", 4K UHD, IPS" }
+                ]
+            },
+            fashion: [
+                { id: 15, name: "Classic T-Shirt", brand: "Urban Style", price: 29, emoji: "👕", specs: "100% Cotton, Various Colors" },
+                { id: 16, name: "Denim Jeans", brand: "Premium Denim", price: 89, emoji: "👖", specs: "Slim Fit, Dark Wash" },
+                { id: 17, name: "Hoodie", brand: "Comfort Wear", price: 59, emoji: "🧥", specs: "Cotton Blend, Pullover Style" },
+                { id: 18, name: "Sneakers", brand: "RunFast", price: 129, emoji: "👟", specs: "Lightweight, Breathable Mesh" },
+                { id: 19, name: "Summer Dress", brand: "Elegant Wear", price: 79, emoji: "👗", specs: "Floral Pattern, Midi Length" },
+                { id: 20, name: "Leather Jacket", brand: "Style Co", price: 199, emoji: "🧥", specs: "Genuine Leather, Classic Cut" }
+            ],
+            accessories: [
+                { id: 21, name: "Apple Watch Ultra", brand: "Apple", price: 799, emoji: "⌚", specs: "49mm, GPS + Cellular" },
+                { id: 22, name: "Ray-Ban Sunglasses", brand: "Ray-Ban", price: 159, emoji: "🕶️", specs: "UV Protection, Classic Style" },
+                { id: 23, name: "Leather Wallet", brand: "Craftsman", price: 49, emoji: "👛", specs: "Genuine Leather, RFID Blocking" },
+                { id: 24, name: "Silk Scarf", brand: "Luxury", price: 89, emoji: "🧣", specs: "100% Silk, Hand-rolled Edges" },
+                { id: 25, name: "Designer Handbag", brand: "Fashion House", price: 299, emoji: "👜", specs: "Premium Leather, Multiple Compartments" },
+                { id: 26, name: "Gold Necklace", brand: "Jewelry Co", price: 399, emoji: "📿", specs: "18K Gold Plated, Adjustable Chain" }
+            ],
+            home: [
+                { id: 27, name: "Smart Speaker", brand: "Amazon", price: 99, emoji: "🔊", specs: "Alexa Built-in, Room-filling Sound" },
+                { id: 28, name: "Coffee Maker", brand: "BrewMaster", price: 149, emoji: "☕", specs: "12-Cup Capacity, Programmable" },
+                { id: 29, name: "Table Lamp", brand: "Light Co", price: 79, emoji: "💡", specs: "LED, Adjustable Brightness" },
+                { id: 30, name: "Throw Pillow", brand: "Comfort Home", price: 25, emoji: "🛏️", specs: "Soft Fabric, Various Patterns" },
+                { id: 31, name: "Wall Art", brand: "Art Studio", price: 69, emoji: "🖼️", specs: "Canvas Print, Modern Design" },
+                { id: 32, name: "Plant Pot", brand: "Garden Plus", price: 35, emoji: "🪴", specs: "Ceramic, Drainage Hole" }
+            ],
+            sports: [
+                { id: 33, name: "Yoga Mat", brand: "FlexFit", price: 39, emoji: "🧘", specs: "Non-slip, Extra Thick" },
+                { id: 34, name: "Dumbbell Set", brand: "StrongGym", price: 199, emoji: "🏋️", specs: "Adjustable Weight, 20-50lbs" },
+                { id: 35, name: "Running Shoes", brand: "SpeedRun", price: 159, emoji: "👟", specs: "Lightweight, Shock Absorption" },
+                { id: 36, name: "Protein Powder", brand: "FitNutrition", price: 49, emoji: "🥤", specs: "Whey Protein, Vanilla Flavor" },
+                { id: 37, name: "Fitness Tracker", brand: "HealthTech", price: 129, emoji: "⌚", specs: "Heart Rate Monitor, Waterproof" },
+                { id: 38, name: "Resistance Bands", brand: "FlexFit", price: 29, emoji: "🏃", specs: "Set of 5, Various Resistance Levels" }
+            ]
+        };
+
+        let currentFilter = 'all';
+        let nextProductId = 39;
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update sections
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update data when switching sections
+            if (sectionId === 'dashboard') {
+                updateDashboard();
+            } else if (sectionId === 'manage-products') {
+                renderProductsTable();
+            } else if (sectionId === 'categories') {
+                updateCategoryStats();
+            }
+        }
+
+        // Helper functions
+        function getAllProducts() {
+            let allProducts = [];
+            allProducts = allProducts.concat(products.electronics.phones.map(p => ({...p, category: 'electronics-phones'})));
+            allProducts = allProducts.concat(products.electronics.laptops.map(p => ({...p, category: 'electronics-laptops'})));
+            allProducts = allProducts.concat(products.electronics.others.map(p => ({...p, category: 'electronics-others'})));
+            allProducts = allProducts.concat(products.fashion.map(p => ({...p, category: 'fashion'})));
+            allProducts = allProducts.concat(products.accessories.map(p => ({...p, category: 'accessories'})));
+            allProducts = allProducts.concat(products.home.map(p => ({...p, category: 'home'})));
+            allProducts = allProducts.concat(products.sports.map(p => ({...p, category: 'sports'})));
+            return allProducts;
+        }
+
+        function getProductById(id) {
+            const allProducts = getAllProducts();
+            return allProducts.find(p => p.id === id);
+        }
+
+        function showAlert(containerId, message, type = 'success') {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+
+        // Dashboard functions
+        function updateDashboard() {
+            const allProducts = getAllProducts();
+            const totalProducts = allProducts.length;
+            const prices = allProducts.map(p => p.price);
+            const avgPrice = prices.reduce((a, b) => a + b, 0) / totalProducts;
+            const maxPrice = Math.max(...prices);
+
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('avgPrice').textContent = `$${avgPrice.toFixed(2)}`;
+            document.getElementById('mostExpensive').textContent = `$${maxPrice}`;
+        }
+
+        // Add product functions
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newProduct = {
+                id: nextProductId++,
+                name: document.getElementById('productName').value,
+                brand: document.getElementById('productBrand').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                emoji: document.getElementById('productEmoji').value,
+                specs: document.getElementById('productSpecs').value
+            };
+
+            const category = document.getElementById('productCategory').value;
+            
+            // Add to appropriate category
+            if (category === 'electronics-phones') {
+                products.electronics.phones.push(newProduct);
+            } else if (category === 'electronics-laptops') {
+                products.electronics.laptops.push(newProduct);
+            } else if (category === 'electronics-others') {
+                products.electronics.others.push(newProduct);
+            } else if (category === 'fashion') {
+                products.fashion.push(newProduct);
+            } else if (category === 'accessories') {
+                products.accessories.push(newProduct);
+            } else if (category === 'home') {
+                products.home.push(newProduct);
+            } else if (category === 'sports') {
+                products.sports.push(newProduct);
+            }
+
+            showAlert('addProductAlert', 'Product added successfully!');
+            document.getElementById('addProductForm').reset();
+            updateDashboard();
+            generateUserPageCode();
+        });
+
+        // Manage products functions
+        function renderProductsTable() {
+            const allProducts = getAllProducts();
+            const tbody = document.getElementById('productsTableBody');
+            
+            let filteredProducts = allProducts;
+            
+            if (currentFilter !== 'all') {
+                filteredProducts = allProducts.filter(p => p.category.includes(currentFilter));
+            }
+
+            tbody.innerHTML = filteredProducts.map(product => `
+                <tr>
+                    <td>${product.id}</td>
+                    <td><span class="product-emoji">${product.emoji}</span></td>
+                    <td>${product.name}</td>
+                    <td>${product.brand}</td>
+                    <td>$${product.price}</td>
+                    <td>${product.category.replace('electronics-', 'Electronics - ')}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-small" onclick="openEditModal(${product.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="deleteProduct(${product.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterByCategory(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderProductsTable();
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+            const allProducts = getAllProducts().filter(p => 
+                p.name.toLowerCase().includes(searchTerm) || 
+                p.brand.toLowerCase().includes(searchTerm)
+            );
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = allProducts.map(product => `
+                <tr>
+                    <td>${product.id}</td>
+                    <td><span class="product-emoji">${product.emoji}</span></td>
+                    <td>${product.name}</td>
+                    <td>${product.brand}</td>
+                    <td>$${product.price}</td>
+                    <td>${product.category.replace('electronics-', 'Electronics - ')}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-small" onclick="openEditModal(${product.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="deleteProduct(${product.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteProduct(id) {
+            for (const section in products) {
+                if (typeof products[section] === 'object' && !Array.isArray(products[section])) {
+                    for (const sub in products[section]) {
+                        products[section][sub] = products[section][sub].filter(p => p.id !== id);
+                    }
+                } else {
+                    products[section] = products[section].filter(p => p.id !== id);
+                }
+            }
+            showAlert('manageProductAlert', 'Product deleted successfully!');
+            renderProductsTable();
+            updateDashboard();
+            updateCategoryStats();
+        }
+
+        function openEditModal(id) {
+            const product = getProductById(id);
+            if (!product) return;
+
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductBrand').value = product.brand;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductEmoji').value = product.emoji;
+            document.getElementById('editProductCategory').value = product.category;
+            document.getElementById('editProductSpecs').value = product.specs;
+
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        document.getElementById('editProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const id = parseInt(document.getElementById('editProductId').value);
+            const updatedProduct = {
+                id,
+                name: document.getElementById('editProductName').value,
+                brand: document.getElementById('editProductBrand').value,
+                price: parseFloat(document.getElementById('editProductPrice').value),
+                emoji: document.getElementById('editProductEmoji').value,
+                category: document.getElementById('editProductCategory').value,
+                specs: document.getElementById('editProductSpecs').value
+            };
+
+            deleteProduct(id);
+
+            if (updatedProduct.category === 'electronics-phones') {
+                products.electronics.phones.push(updatedProduct);
+            } else if (updatedProduct.category === 'electronics-laptops') {
+                products.electronics.laptops.push(updatedProduct);
+            } else if (updatedProduct.category === 'electronics-others') {
+                products.electronics.others.push(updatedProduct);
+            } else if (updatedProduct.category === 'fashion') {
+                products.fashion.push(updatedProduct);
+            } else if (updatedProduct.category === 'accessories') {
+                products.accessories.push(updatedProduct);
+            } else if (updatedProduct.category === 'home') {
+                products.home.push(updatedProduct);
+            } else if (updatedProduct.category === 'sports') {
+                products.sports.push(updatedProduct);
+            }
+
+            closeEditModal();
+            renderProductsTable();
+            updateDashboard();
+            updateCategoryStats();
+            showAlert('manageProductAlert', 'Product updated successfully!');
+        });
+
+        function updateCategoryStats() {
+            document.getElementById('electronicsCount').textContent =
+                products.electronics.phones.length + products.electronics.laptops.length + products.electronics.others.length;
+            document.getElementById('fashionCount').textContent = products.fashion.length;
+            document.getElementById('accessoriesCount').textContent = products.accessories.length;
+            document.getElementById('homeCount').textContent = products.home.length;
+            document.getElementById('sportsCount').textContent = products.sports.length;
+        }
+
+        // Optional placeholder function
+        function generateUserPageCode() {
+            // Can generate updated user view page HTML if needed
+        }
+
+        // Initial load
+        updateDashboard();
+    </script>
+</body>
+</html>
